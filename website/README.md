@@ -49,9 +49,8 @@ installed:
 
 If you're doing active development we suggest the following workflow:
 
-1.  In one tab, navigate to
-    `${OPEN_ASSISTANT_ROOT}/scripts/frontend-development`.
-1.  Run `docker compose up --build`. You can optionally include `-d` to detach and
+1.  In one tab, navigate to the project root.
+1.  Run `docker compose up frontend-dev --build --attach-dependencies`. You can optionally include `-d` to detach and
     later track the logs if desired.
 1.  In another tab navigate to `${OPEN_ASSISTANT_ROOT/website`.
 1.  Run `npm install`
@@ -62,6 +61,20 @@ If you're doing active development we suggest the following workflow:
 1.  To create an account, login via the user using email authentication and
     navigate to `http://localhost:1080`. Check the email listed and click the
     log in link. You're now logged in and authenticated.
+
+### Using debug user credentials
+
+You can use the debug credentials provider to log in without fancy emails or OAuth.
+
+1. This feature is automatically on in development mode, i.e. when you run `npm run dev`. In case you want to do the same with a production build (for example, the docker image), then run the website with environment variable `DEBUG_LOGIN=true`.
+1. Use the `Login` button in the top right to go to the login page.
+1. You should see a section for debug credentials. Enter any username you wish, you will be logged in as that user.
+
+### Using Storybook
+
+To develop components using [Storybook](https://storybook.js.org/) run `npm run storybook`. Then navigate to in your browser to `http://localhost:6006`.
+
+To create a new story create a file named `[componentName].stories.js`. An example how such a story could look like, see `Header.stories.jsx`.
 
 ## Code Layout
 
@@ -89,6 +102,21 @@ All static images, fonts, svgs, etc are stored in `public/`.
 
 We're not really using CSS styles. `styles/` can be ignored.
 
+## Testing the UI
+
+Cypress is used for end-to-end (e2e) and component testing and is configured in `./cypress.config.ts`. The `./cypress` folder is used for supporting configuration files etc.
+
+- Store e2e tests in the `./cypress/e2e` folder.
+- Store component tests adjacent to the component being tested. If you want to wriite a test for `./src/components/Layout.tsx` then store the test file at `./src/components/Layout.cy.tsx`.
+
+A few npm scripts are available for convenience:
+
+- `npm run cypress`: Useful for development, it opens Cypress and allows you to explore, run and debug tests. It assumes you have the NextJS site running at `localhost:3000`.
+- `npm run cypress:run`: Runs all tests. Useful for a quick sanity check before sending a PR or to run in CI pipelines.
+- `npm run cypress:image-baseline`: If you have tests failing because of visual changes that was expected, this command will update the baseline images stored in `./cypress-visual-screenshots/baseline` with those from the adjacent comparison folder. More can be found in the [docs of `uktrade/cypress-image-diff`](https://github.com/uktrade/cypress-image-diff/blob/main/docs/CLI.md#update-all-baseline-images-for-failing-tests).
+
+Read more in the [./cypress README](cypress/).
+
 ## Best Practices
 
 When writing code for the website, we have a few best practices:
@@ -104,6 +132,20 @@ When writing code for the website, we have a few best practices:
     default with pre-submits. We currently don't have any custom settings.
 1.  Define functional React components (with types for all properties when
     feasible).
+
+### URL Paths
+
+To use stable and consistent URL paths, we recommend the following strategy for new tasks:
+
+1.  For any task that involves writing a free-form response, put the page under
+    `website/src/pages/create` with a page name matching the task type, such as
+    `summarize_story.tsx`.
+1.  For any task that evaluates, rates, or ranks content, put the page under
+    `website/src/pages/evaluate` with a page name matching the task type such
+    as `rate_summary.tsx`.
+
+With this we'll be able to ensure these contribution pages are hidden from
+logged out users but accessible to logged in users.
 
 ## Learn More
 
